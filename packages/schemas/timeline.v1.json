@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slop.ai/schemas/timeline.v1.json",
+  "title": "SlopTimeline",
+  "description": "Canonical app-state document for a Slop AI rough-cut project. OTIO is derived from this; this is never derived from OTIO.",
+  "type": "object",
+  "required": ["schema_version", "project", "assets", "tracks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "roughcut.v1"
+    },
+    "project": {
+      "type": "object",
+      "required": ["fps", "resolution", "sample_rate"],
+      "additionalProperties": false,
+      "properties": {
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "resolution": {
+          "type": "object",
+          "required": ["w", "h"],
+          "additionalProperties": false,
+          "properties": {
+            "w": { "type": "integer", "minimum": 1 },
+            "h": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "sample_rate": { "type": "integer", "minimum": 8000 }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Asset" }
+    },
+    "tracks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Track" }
+    },
+    "captions": {
+      "type": "array",
+      "default": [],
+      "items": { "$ref": "#/$defs/Caption" }
+    },
+    "titles": {
+      "type": "array",
+      "default": [],
+      "items": { "$ref": "#/$defs/Title" }
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "otio": { "type": "boolean", "default": true },
+        "premiere_fcp7_xml": { "type": "boolean", "default": false },
+        "resolve_fcpxml": { "type": "boolean", "default": false },
+        "kdenlive": { "type": "boolean", "default": false },
+        "mp4_preview": { "type": "boolean", "default": true }
+      }
+    }
+  },
+  "$defs": {
+    "Asset": {
+      "type": "object",
+      "required": ["asset_id", "uri", "duration_sec", "has_video", "has_audio"],
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": { "type": "string", "minLength": 1 },
+        "uri": { "type": "string", "minLength": 1 },
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0 },
+        "has_video": { "type": "boolean" },
+        "has_audio": { "type": "boolean" },
+        "fps": { "type": ["number", "null"] },
+        "resolution": {
+          "type": ["object", "null"],
+          "properties": {
+            "w": { "type": "integer" },
+            "h": { "type": "integer" }
+          }
+        },
+        "transcript_ref": { "type": ["string", "null"] },
+        "shot_list_ref": { "type": ["string", "null"] }
+      }
+    },
+    "Track": {
+      "type": "object",
+      "required": ["track_id", "kind", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "track_id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["video", "audio"] },
+        "items": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ClipItem" },
+              { "$ref": "#/$defs/GapItem" }
+            ]
+          }
+        }
+      }
+    },
+    "ClipItem": {
+      "type": "object",
+      "required": ["item_id", "type", "asset_id", "src_in", "src_out", "timeline_in", "timeline_out"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string", "minLength": 1 },
+        "type": { "const": "clip" },
+        "asset_id": { "type": "string", "minLength": 1 },
+        "src_in": { "type": "number", "minimum": 0 },
+        "src_out": { "type": "number", "minimum": 0 },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "speed": { "type": "number", "default": 1.0, "exclusiveMinimum": 0 },
+        "effects": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/$defs/Effect" }
+        },
+        "markers": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/$defs/Marker" }
+        },
+        "metadata": { "$ref": "#/$defs/ClipMetadata" }
+      }
+    },
+    "GapItem": {
+      "type": "object",
+      "required": ["item_id", "type", "timeline_in", "timeline_out"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string", "minLength": 1 },
+        "type": { "const": "gap" },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 }
+      }
+    },
+    "Effect": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["fade_in", "fade_out", "cross_dissolve"] },
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "Marker": {
+      "type": "object",
+      "required": ["time_sec", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "time_sec": { "type": "number", "minimum": 0 },
+        "label": { "type": "string" },
+        "color": { "type": "string", "default": "#888" }
+      }
+    },
+    "ClipMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "selection_reason": { "type": "string" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "locked_by_user": { "type": "boolean", "default": false },
+        "prompt_id": { "type": ["string", "null"] }
+      }
+    },
+    "Caption": {
+      "type": "object",
+      "required": ["timeline_in", "timeline_out", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "text": { "type": "string" },
+        "segment_id": { "type": ["string", "null"] }
+      }
+    },
+    "Title": {
+      "type": "object",
+      "required": ["timeline_in", "timeline_out", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "text": { "type": "string" },
+        "style": { "type": "string", "default": "lower-third" }
+      }
+    }
+  }
+}

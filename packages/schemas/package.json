@@ -1,0 +1,21 @@
+{
+  "name": "@slop/schemas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canonical JSON Schemas for Slop AI. Source of truth for both Rust and TypeScript types.",
+  "main": "generated/index.ts",
+  "types": "generated/index.ts",
+  "scripts": {
+    "codegen": "node scripts/generate-types.mjs",
+    "validate": "node scripts/validate-schemas.mjs"
+  },
+  "files": [
+    "*.json",
+    "generated/*.ts"
+  ],
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "json-schema-to-typescript": "^15.0.0"
+  }
+}

@@ -1,0 +1,44 @@
+# Build artifacts
+target/
+dist/
+build/
+out/
+
+# Node
+node_modules/
+.pnpm-store/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Tauri
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+apps/desktop/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Project artifacts
+*.proxy.mp4
+*.thumb.jpg
+**/projects/*/proxies/
+**/projects/*/transcripts/
+**/projects/*/scenes/
+
+# Generated types
+packages/schemas/generated/
+crates/slop-core/src/schema_generated.rs
+
+# Models (downloaded at runtime)
+models/

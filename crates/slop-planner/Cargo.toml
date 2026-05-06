@@ -1,0 +1,21 @@
+[package]
+name = "slop-planner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "OpenAI-compatible LLM client. Sends a candidate-set prompt with a JSON Schema constraint, returns a validated, repaired Plan."
+
+[dependencies]
+slop-core = { workspace = true }
+slop-score = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+async-trait = "0.1"
+uuid = { workspace = true }
+
+[dev-dependencies]

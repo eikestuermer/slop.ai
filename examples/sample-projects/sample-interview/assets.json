@@ -1,0 +1,32 @@
+{
+  "schema_version": "sample.v1",
+  "assets": [
+    {
+      "asset_id": "a_take1",
+      "uri": "file:///nonexistent/take1.mp4",
+      "duration_sec": 90.0,
+      "has_video": true,
+      "has_audio": true,
+      "fps": 30.0,
+      "resolution": { "w": 1920, "h": 1080 }
+    },
+    {
+      "asset_id": "a_take2",
+      "uri": "file:///nonexistent/take2.mp4",
+      "duration_sec": 75.0,
+      "has_video": true,
+      "has_audio": true,
+      "fps": 30.0,
+      "resolution": { "w": 1920, "h": 1080 }
+    },
+    {
+      "asset_id": "a_broll",
+      "uri": "file:///nonexistent/broll.mp4",
+      "duration_sec": 45.0,
+      "has_video": true,
+      "has_audio": false,
+      "fps": 30.0,
+      "resolution": { "w": 1920, "h": 1080 }
+    }
+  ]
+}

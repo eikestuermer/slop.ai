@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slop.ai/schemas/ops.v1.json",
+  "title": "SlopOp",
+  "description": "A reversible command applied to a SlopTimeline. Stored append-only in ops.jsonl. Replaying the log from an empty project rebuilds the current timeline state.",
+  "type": "object",
+  "required": ["op_id", "ts", "kind"],
+  "additionalProperties": false,
+  "properties": {
+    "op_id": { "type": "string", "minLength": 1 },
+    "ts": { "type": "string", "format": "date-time" },
+    "actor": {
+      "type": "string",
+      "enum": ["user", "planner", "system"],
+      "default": "user"
+    },
+    "prompt_id": { "type": ["string", "null"] },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "AddAsset",
+        "RemoveAsset",
+        "InsertClip",
+        "RemoveClip",
+        "TrimClip",
+        "MoveClip",
+        "PinClip",
+        "UnpinClip",
+        "AddMarker",
+        "RemoveMarker",
+        "AddCaption",
+        "RemoveCaption",
+        "ReplaceTimelineRange",
+        "SetProjectSettings"
+      ]
+    },
+    "payload": { "type": "object" },
+    "inverse": { "type": ["object", "null"] }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "slop-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first prompt-driven rough-cut video editor",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "schemas": "pnpm --filter @slop/schemas validate && pnpm --filter @slop/schemas codegen",
+    "dev": "pnpm --filter @slop/desktop tauri dev"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@slop/ui-timeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable timeline canvas React component for Slop AI.",
+  "type": "module",
+  "main": "src/index.tsx",
+  "types": "src/index.tsx",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@slop/schemas": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.5.0"
+  }
+}

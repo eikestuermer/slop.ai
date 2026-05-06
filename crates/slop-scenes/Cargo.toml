@@ -1,0 +1,19 @@
+[package]
+name = "slop-scenes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Shot/scene boundary detection. Rust port of PySceneDetect's ContentDetector and AdaptiveDetector."
+
+[dependencies]
+slop-core = { workspace = true }
+slop-media = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]

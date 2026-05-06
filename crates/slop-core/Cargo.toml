@@ -1,0 +1,18 @@
+[package]
+name = "slop-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Canonical timeline schema, reversible op log, validator, and reducer for Slop AI."
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+schemars = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+jsonschema = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

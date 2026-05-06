@@ -1,0 +1,29 @@
+[package]
+name = "slop-asr"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Automatic speech recognition for Slop AI. whisper.cpp by default, with a pure-Rust placeholder backend for environments without native deps."
+
+[features]
+default = []
+# Compile and link whisper.cpp via the `whisper-rs` crate. Requires CMake and
+# a C++ toolchain at build time. Off by default so a clean clone builds with
+# `cargo build` alone.
+whisper-cpp = []
+
+[dependencies]
+slop-core = { workspace = true }
+slop-media = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+hound = { workspace = true }
+anyhow = { workspace = true }
+async-trait = "0.1"
+uuid = { workspace = true }
+
+[dev-dependencies]
+uuid = { workspace = true }

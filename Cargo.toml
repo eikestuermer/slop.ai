@@ -1,0 +1,51 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/slop-core",
+    "crates/slop-media",
+    "crates/slop-asr",
+    "crates/slop-scenes",
+    "crates/slop-score",
+    "crates/slop-planner",
+    "crates/slop-otio",
+    "crates/slop-render",
+    "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/slop-ai/slop.ai"
+rust-version = "1.75"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = { version = "0.8", features = ["uuid1", "chrono"] }
+thiserror = "1"
+anyhow = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "process", "io-util", "sync"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+jsonschema = { version = "0.18", default-features = false }
+regex = "1"
+rusqlite = { version = "0.31", features = ["bundled"] }
+hound = "3.5"
+
+slop-core = { path = "crates/slop-core" }
+slop-media = { path = "crates/slop-media" }
+slop-asr = { path = "crates/slop-asr" }
+slop-scenes = { path = "crates/slop-scenes" }
+slop-score = { path = "crates/slop-score" }
+slop-planner = { path = "crates/slop-planner" }
+slop-otio = { path = "crates/slop-otio" }
+slop-render = { path = "crates/slop-render" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

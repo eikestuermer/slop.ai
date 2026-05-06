@@ -1,0 +1,36 @@
+[package]
+name = "slop-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Tauri desktop application for Slop AI."
+
+[lib]
+name = "slop_desktop_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+slop-core = { workspace = true }
+slop-media = { workspace = true }
+slop-asr = { workspace = true }
+slop-scenes = { workspace = true }
+slop-score = { workspace = true }
+slop-planner = { workspace = true }
+slop-otio = { workspace = true }
+slop-render = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[features]
+default = []

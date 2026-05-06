@@ -1,0 +1,72 @@
+:root {
+  --bg-0: #0c0d10;
+  --bg-1: #15171b;
+  --bg-2: #1c1f25;
+  --bg-3: #262a31;
+  --fg-0: #f5f6f8;
+  --fg-1: #a8aeb8;
+  --fg-2: #6a707b;
+  --accent: #ff7a59;
+  --accent-soft: rgba(255, 122, 89, 0.18);
+  --good: #5aef9e;
+  --warn: #f0c050;
+  --bad: #ff7070;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+    "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  color: var(--fg-0);
+  background: var(--bg-0);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  background: var(--bg-3);
+  color: var(--fg-0);
+  border: 1px solid var(--bg-3);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+button:hover {
+  border-color: var(--accent);
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1c0a05;
+  font-weight: 600;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  background: var(--bg-1);
+  color: var(--fg-0);
+  border: 1px solid var(--bg-3);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}

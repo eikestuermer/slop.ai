@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slop.ai/schemas/plan.v1.json",
+  "title": "SlopPlan",
+  "description": "Strict JSON contract that the planner LLM must produce. Validated by slop_core::validator before any timeline mutation.",
+  "type": "object",
+  "required": ["version", "summary", "timeline", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": "roughcut_plan.v1" },
+    "summary": { "type": "string" },
+    "timeline": {
+      "type": "object",
+      "required": ["fps", "tracks"],
+      "additionalProperties": false,
+      "properties": {
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "id", "clips"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "enum": ["video", "audio"] },
+              "id": { "type": "string" },
+              "clips": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/PlannedClip" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "captions": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["timeline_in", "timeline_out", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "segment_id": { "type": ["string", "null"] },
+          "timeline_in": { "type": "number", "minimum": 0 },
+          "timeline_out": { "type": "number", "minimum": 0 },
+          "text": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "PlannedClip": {
+      "type": "object",
+      "required": ["asset_id", "src_in", "src_out", "timeline_in"],
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": { "type": "string" },
+        "segment_id": { "type": ["string", "null"] },
+        "shot_id": { "type": ["string", "null"] },
+        "src_in": { "type": "number", "minimum": 0 },
+        "src_out": { "type": "number", "minimum": 0 },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "lane": { "type": "integer", "default": 0 },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}
