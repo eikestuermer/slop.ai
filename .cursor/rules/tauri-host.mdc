@@ -1,0 +1,35 @@
+---
+description: Tauri host + IPC conventions for the slop.ai desktop app. Applied to apps/desktop/src-tauri/**.
+globs: apps/desktop/src-tauri/**
+alwaysApply: false
+---
+
+# Tauri host conventions
+
+## Where things live
+
+- IPC commands: [apps/desktop/src-tauri/src/commands.rs](../../apps/desktop/src-tauri/src/commands.rs). One function per `#[tauri::command]`. Keep the file flat; do not split until it crosses ~30 commands.
+- Project state: [apps/desktop/src-tauri/src/state.rs](../../apps/desktop/src-tauri/src/state.rs). All mutations go through `AppState::apply_and_log` which appends to `ops.jsonl`.
+- Bootstrap: [apps/desktop/src-tauri/src/lib.rs](../../apps/desktop/src-tauri/src/lib.rs). Add new commands to `tauri::generate_handler![...]`.
+- Capabilities: [apps/desktop/src-tauri/capabilities/default.json](../../apps/desktop/src-tauri/capabilities/default.json). Bind to `localhost` only by default.
+
+## IPC command rules
+
+- Every command returns `CmdResult<T>` (alias for `Result<T, String>`). The frontend cannot deserialize Rust enums; stringify errors at the boundary.
+- Every command is `async`. Use `tokio::task::spawn_blocking` for CPU-bound work (whisper, scenes, render).
+- Every command takes `state: State<'_, AppState>` and uses `state.with(|s| ...)` for synchronous reads, or `state.apply_and_log(op)` for state mutations.
+- Never `panic!` or `unwrap()` user-controlled inputs; map every error.
+
+## V1.5+ IPC backlog
+
+The V1 commands (assets, transcript, scenes, plan, pin/unpin, render, export OTIO, endpoint config, privacy mode) are wired. The V1.5+ crates (multicam, color, mixer, transitions, captions, vision, agent, genav, reframe, sync, plugin) are **not yet exposed via IPC**; this is `S-IPC-001` in [docs/stubs.md](../../docs/stubs.md). When you add a new command for one of those crates:
+
+1. Add it to [commands.rs](../../apps/desktop/src-tauri/src/commands.rs).
+2. Register it in [lib.rs](../../apps/desktop/src-tauri/src/lib.rs)'s `generate_handler!`.
+3. Add the matching IPC binding in [apps/desktop/src/ipc.ts](../../apps/desktop/src/ipc.ts).
+4. Add a Vitest test (mock the binding) under [apps/desktop/src/__tests__/](../../apps/desktop/src/__tests__/).
+5. Cross-link the change to `S-IPC-001` in stubs.md.
+
+## Permissions
+
+The Tauri capability scope is the security boundary. Adding `fs:scope` allowances or `network:*` permissions requires a documented justification and a `community-curator` review.

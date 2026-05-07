@@ -1,0 +1,33 @@
+---
+description: JSON Schema is the single source of truth for slop.ai. Applied when editing any schema in packages/schemas.
+globs: packages/schemas/**/*.json
+alwaysApply: false
+---
+
+# Schema discipline
+
+The four schemas at [packages/schemas/](../../packages/schemas/) (`timeline.v1.json`, `timeline.v2.json`, `ops.v1.json`, `plan.v1.json`) are the contract that ties Rust, TypeScript, and the planner LLM together. Treat them as a public API.
+
+## Single source of truth
+
+- Rust types in [crates/slop-core/src/timeline.rs](../../crates/slop-core/src/timeline.rs), [ops.rs](../../crates/slop-core/src/ops.rs), and [plan.rs](../../crates/slop-core/src/plan.rs) MIRROR the schemas. They are kept in sync by hand for V1; runtime conformance is enforced by the schema validators in [validator.rs](../../crates/slop-core/src/validator.rs) which `include_str!` the JSON files.
+- TypeScript types are AUTO-GENERATED into `packages/schemas/generated/` by [scripts/generate-types.mjs](../../packages/schemas/scripts/generate-types.mjs). Never hand-edit those files.
+
+## When you change a schema
+
+1. Edit the `.json` file.
+2. Run `pnpm --filter @slop/schemas validate` — must exit 0.
+3. Run `pnpm --filter @slop/schemas codegen` — regenerates the TS types.
+4. Update the matching Rust types in `crates/slop-core/src/`. Add `#[serde(skip_serializing_if = "Option::is_none")]` for any optional field whose schema doesn't allow `null`, otherwise the validator will reject the serialized output.
+5. Add or update tests in [crates/slop-core/](../../crates/slop-core/) that exercise the new field.
+
+## Breaking changes require a migration
+
+- Removing a field, narrowing a type, or renaming requires a new schema version (`timeline.v3.json`) plus a migration in [crates/slop-core/src/migrations/](../../crates/slop-core/src/migrations/).
+- Migrations are append-only: once shipped they are never edited; new bugs become *new* migrations.
+- The migration must be exercised by tests. See [migrations/v1_to_v2.rs](../../crates/slop-core/src/migrations/v1_to_v2.rs) for the canonical pattern.
+
+## CI gates
+
+- The `schemas` job in [.github/workflows/ci.yml](../../.github/workflows/ci.yml) runs `validate` + `codegen` on every PR.
+- The `frontend` job re-runs codegen and compiles every TS package against the regenerated types. If your codegen changes break the frontend, the gate catches it.

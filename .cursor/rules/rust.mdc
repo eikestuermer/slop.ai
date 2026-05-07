@@ -1,0 +1,35 @@
+---
+description: Rust style + architectural pillars for slop.ai. Applied to every Rust source and Cargo.toml in the workspace.
+globs: "**/*.rs,**/Cargo.toml"
+alwaysApply: false
+---
+
+# Rust standards for slop.ai
+
+## Architectural pillars (non-negotiable)
+
+1. **Two-layer state.** `slop-core::Timeline` plus the `ops.jsonl` command log are the canonical project state. OTIO and every NLE export are *derived*. Never read OTIO to reconstruct project state.
+2. **Candidate-set planning.** The planner LLM only ever picks from a precomputed candidate set. It never sees raw URIs, and it never invents IDs.
+3. **Validate then apply.** Any `Plan` from the planner goes through `slop_core::validator::validate_plan_semantics` and `slop_core::repair::repair_plan` before any `Op` is applied to a `Timeline`.
+4. **Deterministic render.** `slop-render` compiles the validated `Timeline` to an FFmpeg filtergraph. The LLM never produces filtergraphs.
+5. **Rough-cut promise only.** Cuts, trims, markers, captions, simple speed. No transitions/effects/speed-ramps round-trip promise. See [docs/non-goals.md](../docs/non-goals.md).
+
+## Code conventions
+
+- 2021 edition. `cargo fmt --all`. `cargo clippy --workspace --all-targets -- -D warnings` is a hard CI gate; do not allow new warnings.
+- Errors: `thiserror::Error` in libraries, `anyhow::Result` in binaries.
+- No `unwrap()` / `expect()` on user-supplied input or fallible IO; both are fine inside tests and in the main panic path of binaries.
+- Public API documented with rustdoc. Every public function in `slop-core` should be reachable from at least one unit test.
+- New dependencies: must pass `cargo deny check`. Add the license to the allow list in [deny.toml](../deny.toml) only with a reviewer-acknowledged justification. Vulnerabilities must be addressed (upgrade preferred, ignore-with-justification last resort).
+- FFmpeg is invoked via subprocess only. Never enable `--enable-gpl` builds; we ship LGPL-only.
+
+## Tests
+
+- Unit tests live next to the code in `mod tests`.
+- Integration tests live in `crates/<name>/tests/*.rs`.
+- Tests that need ffmpeg / ONNX models / native deps are gated behind feature flags or `#[ignore]` with an explanation; CI's allowed-to-fail Tier 2 jobs cover them.
+- Schema-validating tests use `slop_core::validator::TIMELINE_SCHEMA` / `PLAN_SCHEMA` / `OPS_SCHEMA` rather than re-loading from disk.
+
+## When you finish a stub
+
+Cross-reference the matching `S-*` id in [docs/stubs.md](../docs/stubs.md). After CI proves the row green on `main`, move it to "Closed" in stubs.md and update [docs/production-readiness.md](../docs/production-readiness.md). Never mark a row green based on local-only verification.
