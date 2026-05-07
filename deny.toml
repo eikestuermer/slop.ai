@@ -9,17 +9,22 @@ allow = [
     "BSD-3-Clause",
     "ISC",
     "Unicode-3.0",
-    "Unicode-DFS-2016",
     "Zlib",
     "MPL-2.0",
     "0BSD",
     "CC0-1.0",
+    "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.8
 
 [bans]
-multiple-versions = "warn"
+# Multiple versions of the same crate happen routinely with a workspace this
+# size; we accept the warning and address them in periodic dep audits.
+multiple-versions = "allow"
+# Wildcard deps are forbidden; workspace path deps must declare a `version`.
 wildcards = "deny"
+# Workspace internal crates are allowed to use path = "..." with a version.
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"
@@ -28,4 +33,33 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 [advisories]
 yanked = "warn"
-ignore = []
+# Tracked vulnerabilities and their resolution plan live in
+# docs/security-advisories.md. Each ignore line MUST cite the advisory
+# and the date by which we intend to fix it.
+ignore = [
+    # GTK-RS GTK3 bindings unmaintained. Upstream Tauri 2 still depends
+    # on GTK3 on Linux. Will resolve when Tauri migrates to GTK4
+    # (tracked: https://github.com/tauri-apps/tauri/issues/3636).
+    { id = "RUSTSEC-2024-0411", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0412", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0413", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0414", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0415", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0416", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0417", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0418", reason = "Tauri Linux GTK3 dep; Tauri tracks the GTK4 migration." },
+    { id = "RUSTSEC-2024-0370", reason = "proc-macro-error unmaintained; transitive dep." },
+    { id = "RUSTSEC-2024-0384", reason = "instant unmaintained; transitive dep." },
+    { id = "RUSTSEC-2025-0057", reason = "fxhash unmaintained; pulled in by Tauri/wry transitive deps." },
+    # `unic-*` crates unmaintained; pulled in transitively by jsonschema
+    # 0.18 -> fancy-regex -> regex -> unic-ucd-*.
+    # Pinned because no patch path exists upstream until jsonschema 0.19+
+    # which we will adopt once the rest of the API surface stabilizes.
+    { id = "RUSTSEC-2024-0419", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2024-0420", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2025-0075", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2025-0080", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2025-0081", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2025-0098", reason = "unic-* dep via jsonschema; tracked upstream." },
+    { id = "RUSTSEC-2025-0100", reason = "unic-* dep via jsonschema; tracked upstream." },
+]

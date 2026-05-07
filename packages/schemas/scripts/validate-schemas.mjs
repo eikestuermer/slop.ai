@@ -14,7 +14,7 @@ const root = join(here, "..");
 const ajv = new Ajv2020({ strict: true, allErrors: true });
 addFormats.default(ajv);
 
-const schemas = ["timeline.v1.json", "ops.v1.json", "plan.v1.json"];
+const schemas = ["timeline.v1.json", "timeline.v2.json", "ops.v1.json", "plan.v1.json"];
 let failed = 0;
 for (const file of schemas) {
   try {

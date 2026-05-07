@@ -137,8 +137,7 @@ impl AppState {
         slop_core::reducer::apply(&mut inner.timeline, &op)
             .map_err(|e| anyhow::anyhow!(e.to_string()))?;
         let ops_path = inner.path.join("ops.jsonl");
-        OpLog::append_to_file(&op, &ops_path)
-            .map_err(|e| anyhow::anyhow!(e.to_string()))?;
+        OpLog::append_to_file(&op, &ops_path).map_err(|e| anyhow::anyhow!(e.to_string()))?;
         inner.op_log.push(op);
         Ok(())
     }

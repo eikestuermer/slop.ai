@@ -57,10 +57,7 @@ pub fn apply(tl: &mut Timeline, op: &Op) -> Result<Op> {
                 .position(|t| &t.track_id == track_id)
                 .ok_or_else(|| Error::UnknownTrack(track_id.clone()))?;
             let track = tl.tracks.remove(pos);
-            OpKind::ReinsertTrack {
-                track,
-                index: pos,
-            }
+            OpKind::ReinsertTrack { track, index: pos }
         }
 
         OpKind::ReinsertTrack { track, index } => {
@@ -132,7 +129,7 @@ pub fn apply(tl: &mut Timeline, op: &Op) -> Result<Op> {
             new_src_in,
             new_src_out,
         } => {
-            if !(*new_src_in < *new_src_out) {
+            if *new_src_in >= *new_src_out {
                 return Err(Error::SrcEmpty(item_id.clone()));
             }
             let track = tl
@@ -267,7 +264,9 @@ pub fn apply(tl: &mut Timeline, op: &Op) -> Result<Op> {
 
         OpKind::RemoveCaption { index } => {
             if *index >= tl.captions.len() {
-                return Err(Error::Invariant(format!("caption index {index} out of range")));
+                return Err(Error::Invariant(format!(
+                    "caption index {index} out of range"
+                )));
             }
             let removed = tl.captions.remove(*index);
             OpKind::AddCaption(removed)
@@ -288,8 +287,8 @@ pub fn apply(tl: &mut Timeline, op: &Op) -> Result<Op> {
             let mut removed_items = Vec::new();
             let mut keep = Vec::new();
             for item in track.items.drain(..) {
-                let in_range = item.timeline_in() >= *timeline_in
-                    && item.timeline_out() <= *timeline_out;
+                let in_range =
+                    item.timeline_in() >= *timeline_in && item.timeline_out() <= *timeline_out;
                 let pinned = match &item {
                     TrackItem::Clip(c) => c.metadata.locked_by_user,
                     TrackItem::Gap(_) => false,
@@ -309,9 +308,7 @@ pub fn apply(tl: &mut Timeline, op: &Op) -> Result<Op> {
             let removed_captions: Vec<Caption> = tl
                 .captions
                 .iter()
-                .filter(|c| {
-                    c.timeline_in >= *timeline_in && c.timeline_out <= *timeline_out
-                })
+                .filter(|c| c.timeline_in >= *timeline_in && c.timeline_out <= *timeline_out)
                 .cloned()
                 .collect();
             tl.captions

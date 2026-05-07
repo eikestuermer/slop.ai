@@ -1,0 +1,415 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slop.ai/schemas/timeline.v2.json",
+  "title": "SlopTimeline",
+  "description": "Canonical app-state document for a Slop AI project (v2). Adds compound clips, multicam groups, J/L cut offsets, speed curves, the effect graph, styled captions, transitions, the audio mixer, and the color pipeline. OTIO is derived from this; this is never derived from OTIO.",
+  "type": "object",
+  "required": ["schema_version", "project", "assets", "tracks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "roughcut.v2" },
+    "project": { "$ref": "#/$defs/Project" },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/Asset" } },
+    "tracks": { "type": "array", "items": { "$ref": "#/$defs/Track" } },
+    "captions": { "type": "array", "default": [], "items": { "$ref": "#/$defs/Caption" } },
+    "titles": { "type": "array", "default": [], "items": { "$ref": "#/$defs/Title" } },
+    "mixer": { "$ref": "#/$defs/Mixer" },
+    "color": { "$ref": "#/$defs/ColorPipeline" },
+    "exports": { "$ref": "#/$defs/Exports" }
+  },
+  "$defs": {
+    "Project": {
+      "type": "object",
+      "required": ["fps", "resolution", "sample_rate"],
+      "additionalProperties": false,
+      "properties": {
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "resolution": {
+          "type": "object",
+          "required": ["w", "h"],
+          "additionalProperties": false,
+          "properties": {
+            "w": { "type": "integer", "minimum": 1 },
+            "h": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "sample_rate": { "type": "integer", "minimum": 8000 },
+        "color_space": {
+          "type": "string",
+          "enum": ["rec709", "rec2020", "p3", "srgb"],
+          "default": "rec709"
+        },
+        "audio_channels": { "type": "integer", "default": 2, "minimum": 1, "maximum": 16 }
+      }
+    },
+    "Asset": {
+      "type": "object",
+      "required": ["asset_id", "uri", "duration_sec", "has_video", "has_audio"],
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": { "type": "string", "minLength": 1 },
+        "uri": { "type": "string", "minLength": 1 },
+        "duration_sec": { "type": "number", "exclusiveMinimum": 0 },
+        "has_video": { "type": "boolean" },
+        "has_audio": { "type": "boolean" },
+        "fps": { "type": ["number", "null"] },
+        "resolution": {
+          "type": ["object", "null"],
+          "properties": { "w": { "type": "integer" }, "h": { "type": "integer" } }
+        },
+        "transcript_ref": { "type": ["string", "null"] },
+        "shot_list_ref": { "type": ["string", "null"] },
+        "diarization_ref": { "type": ["string", "null"] }
+      }
+    },
+    "Track": {
+      "type": "object",
+      "required": ["track_id", "kind", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "track_id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["video", "audio"] },
+        "items": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ClipItem" },
+              { "$ref": "#/$defs/GapItem" },
+              { "$ref": "#/$defs/CompoundItem" },
+              { "$ref": "#/$defs/MulticamItem" },
+              { "$ref": "#/$defs/TransitionItem" }
+            ]
+          }
+        },
+        "muted": { "type": "boolean", "default": false },
+        "locked": { "type": "boolean", "default": false }
+      }
+    },
+    "ClipItem": {
+      "type": "object",
+      "required": ["item_id", "type", "asset_id", "src_in", "src_out", "timeline_in", "timeline_out"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string", "minLength": 1 },
+        "type": { "const": "clip" },
+        "asset_id": { "type": "string", "minLength": 1 },
+        "src_in": { "type": "number", "minimum": 0 },
+        "src_out": { "type": "number", "minimum": 0 },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "speed": { "$ref": "#/$defs/SpeedCurve" },
+        "audio_offset_sec": {
+          "type": "number",
+          "default": 0,
+          "description": "J/L cut offset. Audio plays this many seconds earlier (negative) or later (positive) than video on the timeline."
+        },
+        "video_offset_sec": { "type": "number", "default": 0 },
+        "effects": { "type": "array", "default": [], "items": { "$ref": "#/$defs/EffectNode" } },
+        "color_grade": { "$ref": "#/$defs/ColorGrade" },
+        "markers": { "type": "array", "default": [], "items": { "$ref": "#/$defs/Marker" } },
+        "metadata": { "$ref": "#/$defs/ClipMetadata" }
+      }
+    },
+    "GapItem": {
+      "type": "object",
+      "required": ["item_id", "type", "timeline_in", "timeline_out"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string" },
+        "type": { "const": "gap" },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 }
+      }
+    },
+    "CompoundItem": {
+      "type": "object",
+      "required": ["item_id", "type", "timeline_in", "timeline_out", "inner"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string" },
+        "type": { "const": "compound" },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "name": { "type": "string", "default": "Compound" },
+        "inner": {
+          "type": "object",
+          "required": ["tracks"],
+          "properties": {
+            "tracks": { "type": "array", "items": { "$ref": "#/$defs/Track" } }
+          }
+        }
+      }
+    },
+    "MulticamItem": {
+      "type": "object",
+      "required": ["item_id", "type", "timeline_in", "timeline_out", "angles", "active_angle"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string" },
+        "type": { "const": "multicam" },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "angles": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["angle_id", "asset_id", "src_in", "src_out", "sync_offset_sec"],
+            "properties": {
+              "angle_id": { "type": "string" },
+              "asset_id": { "type": "string" },
+              "src_in": { "type": "number", "minimum": 0 },
+              "src_out": { "type": "number", "minimum": 0 },
+              "sync_offset_sec": {
+                "type": "number",
+                "description": "Offset from the multicam group's t=0 to this angle's source-time t=0. Computed by audio cross-correlation in slop-multicam."
+              }
+            }
+          }
+        },
+        "active_angle": { "type": "string" },
+        "audio_angle": { "type": ["string", "null"] }
+      }
+    },
+    "TransitionItem": {
+      "type": "object",
+      "required": ["item_id", "type", "timeline_in", "timeline_out", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "item_id": { "type": "string" },
+        "type": { "const": "transition" },
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "cross_dissolve",
+            "fade_to_black",
+            "fade_to_white",
+            "wipe_left",
+            "wipe_right",
+            "wipe_up",
+            "wipe_down",
+            "iris_open",
+            "iris_close",
+            "push_left",
+            "push_right",
+            "slide_up",
+            "slide_down",
+            "zoom_blur",
+            "luma_dissolve"
+          ]
+        },
+        "params": { "type": "object", "default": {} }
+      }
+    },
+    "SpeedCurve": {
+      "oneOf": [
+        { "type": "number", "exclusiveMinimum": 0 },
+        {
+          "type": "object",
+          "required": ["keyframes"],
+          "additionalProperties": false,
+          "properties": {
+            "keyframes": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "required": ["t", "v"],
+                "properties": {
+                  "t": { "type": "number", "minimum": 0 },
+                  "v": { "type": "number", "exclusiveMinimum": 0 },
+                  "interp": {
+                    "type": "string",
+                    "enum": ["linear", "smooth", "bezier"],
+                    "default": "smooth"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EffectNode": {
+      "type": "object",
+      "required": ["node_id", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": { "type": "string" },
+        "kind": { "type": "string" },
+        "params": { "type": "object", "default": {} },
+        "keyframes": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": ["param", "t", "v"],
+            "properties": {
+              "param": { "type": "string" },
+              "t": { "type": "number", "minimum": 0 },
+              "v": {},
+              "interp": { "type": "string", "enum": ["hold", "linear", "smooth", "bezier"], "default": "smooth" }
+            }
+          }
+        },
+        "bypass": { "type": "boolean", "default": false }
+      }
+    },
+    "ColorGrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lift": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4, "default": [0, 0, 0, 0] },
+        "gamma": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4, "default": [1, 1, 1, 1] },
+        "gain": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4, "default": [1, 1, 1, 1] },
+        "saturation": { "type": "number", "default": 1 },
+        "contrast": { "type": "number", "default": 1 },
+        "lut_uri": { "type": ["string", "null"], "description": "Path to a .cube LUT file." },
+        "wb_temperature": { "type": "number", "default": 6500 },
+        "wb_tint": { "type": "number", "default": 0 }
+      }
+    },
+    "ColorPipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "working_space": { "type": "string", "enum": ["rec709", "rec2020", "p3", "aces_cc"], "default": "rec709" },
+        "output_transform": { "type": "string", "default": "rec709_2_4" },
+        "global_grade": { "$ref": "#/$defs/ColorGrade" }
+      }
+    },
+    "Mixer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "buses": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": ["bus_id", "name"],
+            "properties": {
+              "bus_id": { "type": "string" },
+              "name": { "type": "string" },
+              "gain_db": { "type": "number", "default": 0 }
+            }
+          }
+        },
+        "track_strips": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": ["track_id"],
+            "properties": {
+              "track_id": { "type": "string" },
+              "gain_db": { "type": "number", "default": 0 },
+              "pan": { "type": "number", "default": 0, "minimum": -1, "maximum": 1 },
+              "muted": { "type": "boolean", "default": false },
+              "soloed": { "type": "boolean", "default": false },
+              "sends": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["bus_id", "level_db"],
+                  "properties": {
+                    "bus_id": { "type": "string" },
+                    "level_db": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "loudness_target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "lufs": { "type": "number", "default": -14 },
+            "true_peak_dbfs": { "type": "number", "default": -1 },
+            "lra": { "type": "number", "default": 11 }
+          }
+        }
+      }
+    },
+    "Marker": {
+      "type": "object",
+      "required": ["time_sec", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "time_sec": { "type": "number", "minimum": 0 },
+        "label": { "type": "string" },
+        "color": { "type": "string", "default": "#888" }
+      }
+    },
+    "ClipMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "selection_reason": { "type": "string" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "locked_by_user": { "type": "boolean", "default": false },
+        "prompt_id": { "type": ["string", "null"] }
+      }
+    },
+    "Caption": {
+      "type": "object",
+      "required": ["timeline_in", "timeline_out", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "text": { "type": "string" },
+        "segment_id": { "type": ["string", "null"] },
+        "language": { "type": "string", "default": "en" },
+        "speaker": { "type": ["string", "null"] },
+        "style": { "$ref": "#/$defs/CaptionStyle" }
+      }
+    },
+    "CaptionStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "font_family": { "type": "string", "default": "Inter" },
+        "font_size_px": { "type": "number", "default": 36 },
+        "color": { "type": "string", "default": "#ffffff" },
+        "background": { "type": "string", "default": "#000000aa" },
+        "outline": { "type": "string", "default": "#000000" },
+        "outline_px": { "type": "number", "default": 2 },
+        "anchor": {
+          "type": "string",
+          "enum": ["top-left", "top-center", "top-right", "middle-center", "bottom-left", "bottom-center", "bottom-right"],
+          "default": "bottom-center"
+        },
+        "x": { "type": "number", "default": 0 },
+        "y": { "type": "number", "default": 0 },
+        "bold": { "type": "boolean", "default": false },
+        "italic": { "type": "boolean", "default": false }
+      }
+    },
+    "Title": {
+      "type": "object",
+      "required": ["timeline_in", "timeline_out", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "timeline_in": { "type": "number", "minimum": 0 },
+        "timeline_out": { "type": "number", "minimum": 0 },
+        "text": { "type": "string" },
+        "style": { "$ref": "#/$defs/CaptionStyle" }
+      }
+    },
+    "Exports": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "otio": { "type": "boolean", "default": true },
+        "premiere_fcp7_xml": { "type": "boolean", "default": false },
+        "resolve_fcpxml": { "type": "boolean", "default": false },
+        "kdenlive": { "type": "boolean", "default": false },
+        "mp4_preview": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+[package]
+name = "slop-node"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Node.js bindings for Slop AI core types."
+
+[lib]
+name = "slop_node"
+crate-type = ["cdylib"]
+
+[dependencies]
+slop-core = { workspace = true }
+slop-render = { workspace = true }
+slop-otio = { workspace = true }
+serde_json = { workspace = true }
+napi = { version = "2.16", default-features = false, features = ["napi4", "serde-json", "tokio_rt"] }
+napi-derive = "2.16"
+tokio = { workspace = true }
+
+[build-dependencies]
+napi-build = "2"

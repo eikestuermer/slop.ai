@@ -255,9 +255,8 @@ impl OpLog {
             if trimmed.is_empty() {
                 continue;
             }
-            let op: Op = serde_json::from_str(trimmed).map_err(|e| {
-                crate::Error::Schema(format!("ops.jsonl line {}: {}", i + 1, e))
-            })?;
+            let op: Op = serde_json::from_str(trimmed)
+                .map_err(|e| crate::Error::Schema(format!("ops.jsonl line {}: {}", i + 1, e)))?;
             log.ops.push(op);
         }
         Ok(log)

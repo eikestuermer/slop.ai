@@ -8,11 +8,17 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "schemas": "pnpm --filter @slop/schemas validate && pnpm --filter @slop/schemas codegen",
+    "icons": "node scripts/build-icons.mjs",
     "dev": "pnpm --filter @slop/desktop tauri dev"
   },
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@fiahfy/icns": "^0.0.7",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.33.5"
+  }
 }

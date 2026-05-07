@@ -87,12 +87,7 @@ pub fn chunk_audio(
     chunks
 }
 
-fn snap_to_quietest(
-    peaks: &WaveformPeaks,
-    total_sec: f64,
-    target_end: f64,
-    max_end: f64,
-) -> f64 {
+fn snap_to_quietest(peaks: &WaveformPeaks, total_sec: f64, target_end: f64, max_end: f64) -> f64 {
     if peaks.peaks.is_empty() || total_sec <= 0.0 {
         return target_end;
     }
@@ -124,7 +119,13 @@ mod tests {
     #[test]
     fn short_audio_yields_one_chunk() {
         let chunks = chunk_audio(15.0, None, &ChunkOptions::default());
-        assert_eq!(chunks, vec![Chunk { start_sec: 0.0, end_sec: 15.0 }]);
+        assert_eq!(
+            chunks,
+            vec![Chunk {
+                start_sec: 0.0,
+                end_sec: 15.0
+            }]
+        );
     }
 
     #[test]

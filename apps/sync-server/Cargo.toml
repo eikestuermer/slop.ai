@@ -1,0 +1,30 @@
+[package]
+name = "slop-sync-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Self-hosted Slop AI sync server. Speaks the Automerge sync protocol over WebSocket. Stateless beyond per-project blob storage."
+
+[[bin]]
+name = "slop-sync-server"
+path = "src/main.rs"
+
+[dependencies]
+slop-core = { workspace = true }
+slop-sync = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
+axum = { version = "0.7", features = ["ws"] }
+tower = "0.5"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+sled = "0.34"
+clap = { version = "4", features = ["derive"] }
+hex = "0.4"
+futures-util = "0.3"
+
+[dev-dependencies]

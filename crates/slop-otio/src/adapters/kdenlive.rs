@@ -48,11 +48,7 @@ pub fn write_kdenlive_xml(tl: &Timeline, out: &Path) -> std::io::Result<()> {
             if let TrackItem::Clip(c) = item {
                 if c.timeline_in > cursor + 1e-6 {
                     let blank = c.timeline_in - cursor;
-                    xml.push_str(&format!(
-                        "    <blank length=\"{:.3}\"/>\n",
-                        blank
-                    ));
-                    cursor = c.timeline_in;
+                    xml.push_str(&format!("    <blank length=\"{:.3}\"/>\n", blank));
                 }
                 xml.push_str(&format!(
                     "    <entry producer=\"prod_{id}\" in=\"{si:.3}\" out=\"{so:.3}\"/>\n",

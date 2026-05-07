@@ -1,0 +1,18 @@
+[package]
+name = "slop-py"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Python bindings for Slop AI core types and pipeline. Uses PyO3 + maturin."
+
+[lib]
+name = "slop_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+slop-core = { workspace = true }
+slop-render = { workspace = true }
+slop-otio = { workspace = true }
+serde_json = { workspace = true }
+pyo3 = { version = "0.24.1", features = ["extension-module", "abi3-py39"] }
+tokio = { workspace = true }

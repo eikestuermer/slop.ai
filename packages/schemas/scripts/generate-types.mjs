@@ -12,7 +12,7 @@ const root = join(here, "..");
 const outDir = join(root, "generated");
 mkdirSync(outDir, { recursive: true });
 
-const schemas = ["timeline.v1.json", "ops.v1.json", "plan.v1.json"];
+const schemas = ["timeline.v1.json", "timeline.v2.json", "ops.v1.json", "plan.v1.json"];
 
 for (const file of schemas) {
   const ts = await compileFromFile(join(root, file), {
@@ -25,9 +25,21 @@ for (const file of schemas) {
   console.log("wrote", join("generated", outName));
 }
 
-const indexLines = schemas.map((f) => {
+const indexLines = [];
+for (const f of schemas) {
   const name = f.replace(/\.json$/, "");
-  return `export * from "./${name}";`;
-});
+  // Each schema gets its own namespace export so timeline.v1 and
+  // timeline.v2 (which share interface names like SlopTimeline, Asset, ...)
+  // don't collide. Also re-export the latest timeline schema's types at
+  // top level for ergonomics.
+  const safe = name.replace(/\./g, "_");
+  indexLines.push(`import * as ${safe} from "./${name}";`);
+  indexLines.push(`export { ${safe} };`);
+}
+// Default top-level types come from timeline.v1 for backwards compat
+// with the V1 frontend; consumers wanting v2 types use `timeline_v2.*`.
+indexLines.push(`export * from "./timeline.v1";`);
+indexLines.push(`export * from "./ops.v1";`);
+indexLines.push(`export * from "./plan.v1";`);
 writeFileSync(join(outDir, "index.ts"), indexLines.join("\n") + "\n");
 console.log("wrote generated/index.ts");

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#ff9871"/>
+      <stop offset="60%" stop-color="#ff7a59"/>
+      <stop offset="100%" stop-color="#d8492a"/>
+    </radialGradient>
+    <linearGradient id="mark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ffe9df"/>
+    </linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded square background with soft shadow -->
+  <rect x="48" y="48" width="928" height="928" rx="216" ry="216" fill="#000" opacity="0.25" filter="url(#soft)"/>
+  <rect x="32" y="32" width="960" height="960" rx="220" ry="220" fill="url(#bg)"/>
+
+  <!-- Inner cut: timeline marker shape evoking a clip + playhead -->
+  <g transform="translate(512 512)">
+    <!-- Filmstrip rail -->
+    <rect x="-300" y="-40" width="600" height="80" rx="14" fill="rgba(255,255,255,0.18)"/>
+    <g fill="rgba(255,255,255,0.40)">
+      <rect x="-280" y="-26" width="48" height="52" rx="4"/>
+      <rect x="-220" y="-26" width="48" height="52" rx="4"/>
+      <rect x="-160" y="-26" width="48" height="52" rx="4"/>
+      <rect x="-100" y="-26" width="48" height="52" rx="4"/>
+      <rect x="-40"  y="-26" width="48" height="52" rx="4"/>
+      <rect x="20"   y="-26" width="48" height="52" rx="4"/>
+      <rect x="80"   y="-26" width="48" height="52" rx="4"/>
+      <rect x="140"  y="-26" width="48" height="52" rx="4"/>
+      <rect x="200"  y="-26" width="48" height="52" rx="4"/>
+    </g>
+
+    <!-- Playhead "S" mark stylized as a tape head -->
+    <path d="M -120 -180
+             C -120 -260, 60 -260, 120 -180
+             C 60 -130, -60 -130, -120 -80
+             C -120 -40, 60 -40, 120 -80
+             C 120 0, -60 0, -120 -50
+             Z" fill="url(#mark)" opacity="0"/>
+    <!-- Real S above the rail -->
+    <text x="0" y="-90" text-anchor="middle" font-family="Inter, Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="280" fill="url(#mark)">S</text>
+
+    <!-- Caret playhead under the rail -->
+    <path d="M 0 80 L -22 130 L 22 130 Z" fill="#ffffff"/>
+    <rect x="-2" y="-50" width="4" height="170" fill="#ffffff" opacity="0.85"/>
+  </g>
+</svg>

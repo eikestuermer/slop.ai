@@ -1,0 +1,12 @@
+# pyo3 needs `-undefined dynamic_lookup` on macOS so the produced cdylib
+# can be loaded into the host Python interpreter without linking against
+# libpython at build time. Without this, `cargo build --workspace` fails
+# at link time on macOS even though `cargo check` works.
+#
+# This block applies workspace-wide; non-pyo3 targets ignore the flag.
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]

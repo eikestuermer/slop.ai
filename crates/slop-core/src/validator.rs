@@ -22,8 +22,7 @@
 use crate::{error::Result, plan::Plan, timeline::*, Error};
 
 /// JSON Schema for `Timeline`. Embedded at compile time.
-pub const TIMELINE_SCHEMA: &str =
-    include_str!("../../../packages/schemas/timeline.v1.json");
+pub const TIMELINE_SCHEMA: &str = include_str!("../../../packages/schemas/timeline.v1.json");
 
 /// JSON Schema for the LLM `Plan` contract. Embedded at compile time.
 pub const PLAN_SCHEMA: &str = include_str!("../../../packages/schemas/plan.v1.json");
@@ -91,7 +90,7 @@ pub fn validate_timeline_semantics(tl: &Timeline) -> Result<()> {
 
         for item in &track.items {
             if let TrackItem::Clip(c) = item {
-                if !(c.src_in < c.src_out) {
+                if c.src_in >= c.src_out {
                     return Err(Error::SrcEmpty(c.item_id.clone()));
                 }
                 let asset = tl
@@ -130,7 +129,7 @@ pub fn validate_plan_semantics(plan: &Plan, tl: &Timeline) -> Result<()> {
             let asset = tl
                 .asset(&clip.asset_id)
                 .ok_or_else(|| Error::UnknownAsset(clip.asset_id.clone()))?;
-            if !(clip.src_in < clip.src_out) {
+            if clip.src_in >= clip.src_out {
                 return Err(Error::SrcEmpty(format!(
                     "{}@{}",
                     clip.asset_id, clip.timeline_in

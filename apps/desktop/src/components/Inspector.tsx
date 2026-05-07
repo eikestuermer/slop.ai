@@ -1,4 +1,7 @@
+import type { SlopTimeline } from "@slop/schemas";
 import { useStore } from "../store";
+
+type TrackItem = SlopTimeline["tracks"][number]["items"][number];
 
 export function Inspector() {
   const project = useStore((s) => s.project);
@@ -15,7 +18,7 @@ export function Inspector() {
   }
 
   let trackId: string | null = null;
-  let clip: any = null;
+  let clip: TrackItem | null = null;
   for (const t of project.timeline.tracks) {
     for (const item of t.items) {
       if ("item_id" in item && item.item_id === selectedItem) {

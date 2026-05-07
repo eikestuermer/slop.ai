@@ -31,10 +31,7 @@ pub fn repair_plan(plan: &mut Plan, tl: &Timeline) -> Vec<String> {
             if known_assets.contains(&c.asset_id) {
                 true
             } else {
-                notes.push(format!(
-                    "dropped clip with unknown asset_id {}",
-                    c.asset_id
-                ));
+                notes.push(format!("dropped clip with unknown asset_id {}", c.asset_id));
                 false
             }
         });
@@ -205,5 +202,98 @@ mod tests {
         assert!(track.clips[1].timeline_in >= 30.0 - 1e-6);
         assert!(notes.iter().any(|n| n.contains("clamped src_out")));
         assert!(notes.iter().any(|n| n.contains("shifted clip")));
+    }
+
+    #[test]
+    fn clamps_negative_src_in() {
+        let tl = fixture_tl();
+        let mut plan = Plan {
+            version: "roughcut_plan.v1".into(),
+            summary: "x".into(),
+            timeline: PlanTimeline {
+                fps: 30.0,
+                tracks: vec![PlanTrack {
+                    kind: "video".into(),
+                    id: "v1".into(),
+                    clips: vec![PlannedClip {
+                        asset_id: "a1".into(),
+                        segment_id: None,
+                        shot_id: None,
+                        src_in: -2.5,
+                        src_out: 5.0,
+                        timeline_in: 0.0,
+                        lane: 0,
+                        reason: "starts before zero".into(),
+                    }],
+                }],
+            },
+            captions: vec![],
+            warnings: vec![],
+        };
+        let notes = repair_plan(&mut plan, &tl);
+        assert_eq!(plan.timeline.tracks[0].clips[0].src_in, 0.0);
+        assert!(notes.iter().any(|n| n.contains("clamped src_in")));
+    }
+
+    #[test]
+    fn dropped_invalid_asset_preserves_remaining_clips_on_multi_track_plans() {
+        let tl = fixture_tl();
+        let mut plan = Plan {
+            version: "roughcut_plan.v1".into(),
+            summary: "x".into(),
+            timeline: PlanTimeline {
+                fps: 30.0,
+                tracks: vec![
+                    PlanTrack {
+                        kind: "video".into(),
+                        id: "v1".into(),
+                        clips: vec![
+                            PlannedClip {
+                                asset_id: "a1".into(),
+                                segment_id: None,
+                                shot_id: None,
+                                src_in: 0.0,
+                                src_out: 5.0,
+                                timeline_in: 0.0,
+                                lane: 0,
+                                reason: "valid 1".into(),
+                            },
+                            PlannedClip {
+                                asset_id: "ghost".into(),
+                                segment_id: None,
+                                shot_id: None,
+                                src_in: 0.0,
+                                src_out: 5.0,
+                                timeline_in: 5.0,
+                                lane: 0,
+                                reason: "ghost".into(),
+                            },
+                        ],
+                    },
+                    PlanTrack {
+                        kind: "audio".into(),
+                        id: "a1t".into(),
+                        clips: vec![PlannedClip {
+                            asset_id: "a1".into(),
+                            segment_id: None,
+                            shot_id: None,
+                            src_in: 0.0,
+                            src_out: 5.0,
+                            timeline_in: 0.0,
+                            lane: 0,
+                            reason: "valid audio".into(),
+                        }],
+                    },
+                ],
+            },
+            captions: vec![],
+            warnings: vec![],
+        };
+        repair_plan(&mut plan, &tl);
+        // Track v1: ghost dropped, valid clip kept.
+        assert_eq!(plan.timeline.tracks[0].clips.len(), 1);
+        assert_eq!(plan.timeline.tracks[0].clips[0].asset_id, "a1");
+        // Track a1t: untouched.
+        assert_eq!(plan.timeline.tracks[1].clips.len(), 1);
     }
 }

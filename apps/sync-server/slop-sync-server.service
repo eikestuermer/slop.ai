@@ -1,0 +1,22 @@
+[Unit]
+Description=Slop AI sync server
+Documentation=https://github.com/slop-ai/slop.ai
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=slop
+Group=slop
+ExecStart=/usr/local/bin/slop-sync-server --bind 0.0.0.0:7878 --data-dir /var/lib/slop-sync
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/slop-sync
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

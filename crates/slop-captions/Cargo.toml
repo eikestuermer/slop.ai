@@ -1,0 +1,13 @@
+[package]
+name = "slop-captions"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Caption / subtitle export. SRT + WebVTT + ASS (styled) writers driven by the V2 schema's CaptionStyle."
+
+[dependencies]
+slop-core = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]

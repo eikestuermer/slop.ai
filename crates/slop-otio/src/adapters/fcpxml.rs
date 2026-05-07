@@ -48,9 +48,7 @@ pub fn write_resolve_fcpxml(tl: &Timeline, out: &Path) -> std::io::Result<()> {
         tl.duration_sec()
     ));
     xml.push_str("          <spine>\n");
-    let asset_idx = |id: &str| -> Option<usize> {
-        tl.assets.iter().position(|a| a.asset_id == id)
-    };
+    let asset_idx = |id: &str| -> Option<usize> { tl.assets.iter().position(|a| a.asset_id == id) };
     for track in &tl.tracks {
         for item in &track.items {
             if let TrackItem::Clip(c) = item {

@@ -32,9 +32,11 @@
 
 pub mod backend;
 pub mod chunk;
+pub mod diarize;
 pub mod model;
 pub mod transcript;
 
 pub use backend::{AsrBackend, AsrJob, AsrOptions};
-pub use model::ModelManager;
+pub use diarize::{tag_segments_with_diarization, DiarConfig, DiarSpan, Diarizer};
+pub use model::{ModelManager, WhisperModel};
 pub use transcript::{Segment, Transcript};

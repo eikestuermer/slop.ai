@@ -36,7 +36,9 @@ impl ProbeResult {
             has_video: self.has_video,
             has_audio: self.has_audio,
             fps: self.video_fps,
-            resolution: self.video_resolution.map(|(w, h)| slop_core::Resolution { w, h }),
+            resolution: self
+                .video_resolution
+                .map(|(w, h)| slop_core::Resolution { w, h }),
             transcript_ref: None,
             shot_list_ref: None,
         }

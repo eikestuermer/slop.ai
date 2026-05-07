@@ -1,0 +1,15 @@
+[package]
+name = "slop-mixer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Audio mixer + ITU-R BS.1770-4 LUFS metering + loudness normalization (-14 LUFS streaming, -23 LUFS broadcast)."
+
+[dependencies]
+slop-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]

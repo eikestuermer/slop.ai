@@ -2,7 +2,7 @@
 
 use crate::compiler::{compile_timeline, CompiledRender, RenderOptions};
 use slop_core::Timeline;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use thiserror::Error;
 use tokio::process::Command;
 
@@ -56,11 +56,7 @@ pub async fn render(
     Ok(compiled)
 }
 
-fn build_ffmpeg_cmd(
-    compiled: &CompiledRender,
-    out: &PathBuf,
-    _opts: &RenderOptions,
-) -> Vec<String> {
+fn build_ffmpeg_cmd(compiled: &CompiledRender, out: &Path, _opts: &RenderOptions) -> Vec<String> {
     let mut cmd: Vec<String> = vec!["-y".into()];
     for inp in &compiled.inputs {
         cmd.push("-i".into());

@@ -230,7 +230,7 @@ pub struct Effect {
     /// Effect kind.
     pub kind: EffectKind,
     /// Optional duration; meaning depends on the effect.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub duration_sec: Option<f64>,
 }
 
@@ -266,16 +266,16 @@ fn default_color() -> String {
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ClipMetadata {
     /// Why the planner picked this clip.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub selection_reason: Option<String>,
     /// Confidence score in [0, 1].
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub score: Option<f64>,
     /// Set by the user to prevent regeneration.
     #[serde(default)]
     pub locked_by_user: bool,
     /// Originating prompt id.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub prompt_id: Option<String>,
 }
 

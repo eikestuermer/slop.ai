@@ -85,8 +85,7 @@ pub async fn plan(
     tl: &Timeline,
     style: PromptStyle,
 ) -> Result<PlannerResult, PlannerError> {
-    let plan_schema: serde_json::Value =
-        serde_json::from_str(slop_core::validator::PLAN_SCHEMA)?;
+    let plan_schema: serde_json::Value = serde_json::from_str(slop_core::validator::PLAN_SCHEMA)?;
 
     let messages = build_messages(pack, style);
     let body = json!({

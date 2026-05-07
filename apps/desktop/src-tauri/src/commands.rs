@@ -103,7 +103,7 @@ pub async fn generate_proxies(state: State<'_, AppState>, asset_id: String) -> C
     let opts = slop_media::ProxyOptions::default();
     let r = slop_media::generate_proxy(&local, &proxy_path, &opts).await;
     let probe = slop_media::probe_asset(&local).await.ok();
-    if let Ok(_) = r {
+    if r.is_ok() {
         if let Some(p) = probe {
             let _ = slop_media::generate_thumb_strip(
                 &local,
@@ -147,10 +147,11 @@ pub async fn transcribe_asset(state: State<'_, AppState>, asset_id: String) -> C
         duration_sec,
     };
     let opts = slop_asr::AsrOptions::default();
-    let result = <slop_asr::backend::placeholder::PlaceholderBackend as slop_asr::AsrBackend>::transcribe(
-        &backend, job, &opts,
-    )
-    .await;
+    let result =
+        <slop_asr::backend::placeholder::PlaceholderBackend as slop_asr::AsrBackend>::transcribe(
+            &backend, job, &opts,
+        )
+        .await;
 
     state.with(|s| {
         s.pending_jobs = s.pending_jobs.saturating_sub(1);
@@ -232,22 +233,12 @@ pub async fn plan_rough_cut(
     prompt: String,
 ) -> CmdResult<PlannerStatusOut> {
     let (pack, tl_clone, cfg) = state.with(|s| {
-        let pack = build_prompt_pack(
-            prompt,
-            &s.timeline,
-            vec![s.candidates.clone()],
-            120,
-        );
+        let pack = build_prompt_pack(prompt, &s.timeline, vec![s.candidates.clone()], 120);
         (pack, s.timeline.clone(), s.endpoint.clone())
     });
 
-    let result = slop_planner::plan(
-        &cfg,
-        &pack,
-        &tl_clone,
-        slop_planner::PromptStyle::default(),
-    )
-    .await;
+    let result =
+        slop_planner::plan(&cfg, &pack, &tl_clone, slop_planner::PromptStyle::default()).await;
 
     match result {
         Ok(r) => {
@@ -294,10 +285,7 @@ pub async fn plan_rough_cut(
                 .collect();
 
             // Replace the entire video track 0..end with the new clips.
-            let last_end = clips
-                .iter()
-                .map(|c| c.timeline_out)
-                .fold(0.0_f64, f64::max);
+            let last_end = clips.iter().map(|c| c.timeline_out).fold(0.0_f64, f64::max);
             state
                 .apply_and_log(Op::new(OpKind::ReplaceTimelineRange {
                     track_id,

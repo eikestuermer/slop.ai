@@ -26,7 +26,6 @@ pub fn timeline_to_otio_json(tl: &SlopTimeline) -> Timeline {
                     name: "gap".to_string(),
                     source_range: TimeRange::from_secs(0.0, gap_dur, fps),
                 }));
-                cursor = item.timeline_in();
             }
             match item {
                 TrackItem::Clip(c) => {
@@ -44,7 +43,7 @@ pub fn timeline_to_otio_json(tl: &SlopTimeline) -> Timeline {
                         });
                     }
                     let mut metadata = json!({});
-                    if let Some(meta) = serde_json::to_value(&c.metadata).ok() {
+                    if let Ok(meta) = serde_json::to_value(&c.metadata) {
                         metadata = json!({ "slop": meta });
                     }
                     children.push(TrackChild::Clip(Clip {
@@ -135,11 +134,12 @@ fn marker_color(hex: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::timeline_to_otio_json;
+    use crate::schema::TrackChild;
     use slop_core::*;
 
-    fn fixture() -> SlopTimeline {
-        let mut tl = SlopTimeline::empty();
+    fn fixture() -> Timeline {
+        let mut tl = Timeline::empty();
         tl.assets.push(Asset {
             asset_id: "a1".into(),
             uri: "file:///x.mp4".into(),
@@ -185,5 +185,43 @@ mod tests {
         assert!(s.contains("Clip.2"));
         assert!(s.contains("ExternalReference.1"));
         assert!(s.contains("strong opening"));
+    }
+
+    #[test]
+    fn write_otio_round_trips_through_serde_parse() {
+        let tl = fixture();
+        let dir = std::env::temp_dir().join(format!(
+            "slop-otio-rt-{}",
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let out = dir.join("rt.otio");
+        super::write_otio(&tl, &out).unwrap();
+        let raw = std::fs::read_to_string(&out).unwrap();
+        let parsed: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(parsed["OTIO_SCHEMA"], "Timeline.1");
+        assert_eq!(
+            parsed["tracks"]["children"][0]["children"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn gap_inserted_when_clip_starts_after_zero() {
+        let mut tl = fixture();
+        // Move the clip so it starts at 5.0 with a 5s leading gap.
+        if let TrackItem::Clip(c) = &mut tl.tracks[0].items[0] {
+            c.timeline_in = 5.0;
+            c.timeline_out = 10.0;
+        }
+        let doc = timeline_to_otio_json(&tl);
+        let children = doc.tracks.children[0].children.clone();
+        assert!(matches!(children[0], TrackChild::Gap(_)));
+        if let TrackChild::Gap(g) = &children[0] {
+            assert!((g.source_range.duration.value - 5.0 * 30.0).abs() < 1e-6);
+        }
     }
 }

@@ -22,9 +22,7 @@ pub enum Error {
     UnknownTrack(String),
 
     /// A clip's source range falls outside the asset's duration.
-    #[error(
-        "clip {item_id}: src range [{src_in}, {src_out}] outside asset duration {duration}"
-    )]
+    #[error("clip {item_id}: src range [{src_in}, {src_out}] outside asset duration {duration}")]
     SrcOutOfRange {
         /// The offending item id.
         item_id: String,

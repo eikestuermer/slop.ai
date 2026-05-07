@@ -1,0 +1,21 @@
+[package]
+name = "slop-multicam"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Multicam angle synchronization via audio cross-correlation. Computes sync offsets between angles of the same event."
+
+[dependencies]
+slop-core = { workspace = true }
+slop-media = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+hound = { workspace = true }
+rustfft = "6.2"
+realfft = "3.4"
+anyhow = { workspace = true }
+
+[dev-dependencies]

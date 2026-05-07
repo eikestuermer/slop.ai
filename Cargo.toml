@@ -9,7 +9,22 @@ members = [
     "crates/slop-planner",
     "crates/slop-otio",
     "crates/slop-render",
+    "crates/slop-multicam",
+    "crates/slop-color",
+    "crates/slop-mixer",
+    "crates/slop-transitions",
+    "crates/slop-captions",
+    "crates/slop-vision",
+    "crates/slop-agent",
+    "crates/slop-genav",
+    "crates/slop-reframe",
+    "crates/slop-sync",
+    "crates/slop-plugin",
     "apps/desktop/src-tauri",
+    "apps/sync-server",
+    "apps/cli",
+    "bindings/python",
+    "bindings/node",
 ]
 
 [workspace.package]
@@ -31,19 +46,30 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "process", "io-util", "sync"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
-jsonschema = { version = "0.18", default-features = false }
+jsonschema = { version = "0.18", default-features = false, features = ["draft202012"] }
 regex = "1"
 rusqlite = { version = "0.31", features = ["bundled"] }
 hound = "3.5"
 
-slop-core = { path = "crates/slop-core" }
-slop-media = { path = "crates/slop-media" }
-slop-asr = { path = "crates/slop-asr" }
-slop-scenes = { path = "crates/slop-scenes" }
-slop-score = { path = "crates/slop-score" }
-slop-planner = { path = "crates/slop-planner" }
-slop-otio = { path = "crates/slop-otio" }
-slop-render = { path = "crates/slop-render" }
+slop-core = { path = "crates/slop-core", version = "0.1" }
+slop-media = { path = "crates/slop-media", version = "0.1" }
+slop-asr = { path = "crates/slop-asr", version = "0.1" }
+slop-scenes = { path = "crates/slop-scenes", version = "0.1" }
+slop-score = { path = "crates/slop-score", version = "0.1" }
+slop-planner = { path = "crates/slop-planner", version = "0.1" }
+slop-otio = { path = "crates/slop-otio", version = "0.1" }
+slop-render = { path = "crates/slop-render", version = "0.1" }
+slop-multicam = { path = "crates/slop-multicam", version = "0.1" }
+slop-color = { path = "crates/slop-color", version = "0.1" }
+slop-mixer = { path = "crates/slop-mixer", version = "0.1" }
+slop-transitions = { path = "crates/slop-transitions", version = "0.1" }
+slop-captions = { path = "crates/slop-captions", version = "0.1" }
+slop-vision = { path = "crates/slop-vision", version = "0.1" }
+slop-agent = { path = "crates/slop-agent", version = "0.1" }
+slop-genav = { path = "crates/slop-genav", version = "0.1" }
+slop-reframe = { path = "crates/slop-reframe", version = "0.1" }
+slop-sync = { path = "crates/slop-sync", version = "0.1" }
+slop-plugin = { path = "crates/slop-plugin", version = "0.1" }
 
 [profile.release]
 opt-level = 3

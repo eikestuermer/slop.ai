@@ -1,0 +1,23 @@
+[package]
+name = "slop-agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Agentic edit loop. The planner becomes an agent with tools (pin, unpin, replace_range, render_preview, score_critic) and iterates until a self-critic accepts."
+
+[dependencies]
+slop-core = { workspace = true }
+slop-planner = { workspace = true }
+slop-score = { workspace = true }
+slop-render = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+tracing = { workspace = true }
+async-trait = "0.1"
+anyhow = { workspace = true }
+jsonschema = { workspace = true }
+
+[dev-dependencies]

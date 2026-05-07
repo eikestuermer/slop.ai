@@ -10,7 +10,16 @@ default = []
 # Compile and link whisper.cpp via the `whisper-rs` crate. Requires CMake and
 # a C++ toolchain at build time. Off by default so a clean clone builds with
 # `cargo build` alone.
-whisper-cpp = []
+whisper-cpp = ["dep:whisper-rs"]
+# Real SOTA diarization via ONNX Runtime + pyannote-audio 3.0 ONNX models.
+# Off by default so a clean checkout builds; enable in release builds.
+ort = ["dep:ort"]
+# Hardware acceleration for ONNX Runtime (Apple Silicon / Apple GPU).
+coreml = ["ort", "ort/coreml"]
+# Hardware acceleration for ONNX Runtime (NVIDIA).
+cuda = ["ort", "ort/cuda"]
+# Energy-based diarization placeholder (kept for environments without ort).
+diarization = []
 
 [dependencies]
 slop-core = { workspace = true }
@@ -24,6 +33,11 @@ hound = { workspace = true }
 anyhow = { workspace = true }
 async-trait = "0.1"
 uuid = { workspace = true }
+sha2 = "0.10"
+reqwest = { workspace = true, features = ["stream"] }
+futures-util = "0.3"
+whisper-rs = { version = "0.12", optional = true }
+ort = { version = "2.0.0-rc.10", optional = true, default-features = false, features = ["download-binaries", "ndarray"] }
 
 [dev-dependencies]
 uuid = { workspace = true }

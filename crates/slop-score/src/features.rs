@@ -29,12 +29,30 @@ pub fn lexical_score(segment: &Segment) -> f32 {
         score += 0.2;
     }
     let strong = [
-        "love", "hate", "incredible", "shocked", "first", "best", "worst",
-        "biggest", "fastest", "secret", "truth", "actually", "really",
-        "honestly", "huge", "amazing", "important",
+        "love",
+        "hate",
+        "incredible",
+        "shocked",
+        "first",
+        "best",
+        "worst",
+        "biggest",
+        "fastest",
+        "secret",
+        "truth",
+        "actually",
+        "really",
+        "honestly",
+        "huge",
+        "amazing",
+        "important",
     ];
     let lower = text.to_lowercase();
-    if strong.iter().any(|w| lower.split_whitespace().any(|t| t.trim_matches(|c: char| !c.is_alphanumeric()) == *w)) {
+    if strong.iter().any(|w| {
+        lower
+            .split_whitespace()
+            .any(|t| t.trim_matches(|c: char| !c.is_alphanumeric()) == *w)
+    }) {
         score += 0.3;
     }
     let capitalized = Regex::new(r"\b[A-Z][a-z]{2,}\b").unwrap();
@@ -109,7 +127,7 @@ pub fn duration_score(segment: &Segment) -> f32 {
     } else if (1.5..=8.0).contains(&dur) {
         1.0
     } else if dur < 1.5 {
-        dur / 1.5
+        (dur / 1.5) as f32
     } else if dur <= 20.0 {
         ((20.0 - dur) / 12.0) as f32
     } else {

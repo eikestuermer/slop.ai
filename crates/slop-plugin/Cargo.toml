@@ -1,0 +1,21 @@
+[package]
+name = "slop-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plugin host. WASI Component Model 0.2 sandbox via Wasmtime, signed manifests via Sigstore, versioned ABI."
+
+[dependencies]
+slop-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+wasmtime = { version = "36", features = ["component-model"] }
+wasmtime-wasi = "36"
+sha2 = "0.10"
+hex = "0.4"
+
+[dev-dependencies]
+uuid = { workspace = true }

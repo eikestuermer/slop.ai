@@ -33,7 +33,12 @@ impl Default for ContentDetector {
 impl Detector for ContentDetector {
     fn detect(&self, stream: &FrameStream, _opts: &DetectorOptions) -> Vec<Scene> {
         let scores = compute_hsv_diff_scores(stream);
-        emit_scenes(stream, &scores, |_, score| score > self.threshold, self.min_scene_len)
+        emit_scenes(
+            stream,
+            &scores,
+            |_, score| score > self.threshold,
+            self.min_scene_len,
+        )
     }
     fn name(&self) -> &'static str {
         "content"
@@ -202,9 +207,7 @@ mod tests {
 
     #[test]
     fn detector_emits_two_scenes_on_jump() {
-        let mut frames: Vec<RgbFrame> = (0..20)
-            .map(|i| solid_frame(i, [0, 0, 0], 8, 8))
-            .collect();
+        let mut frames: Vec<RgbFrame> = (0..20).map(|i| solid_frame(i, [0, 0, 0], 8, 8)).collect();
         frames.extend((20..40).map(|i| solid_frame(i, [255, 0, 0], 8, 8)));
         let stream = FrameStream {
             frames,

@@ -129,8 +129,39 @@ fn kdenlive_xml_contains_producers_and_entries() {
     assert_eq!(s.matches("<entry ").count(), 2);
 }
 
+#[test]
+fn fcp7_xml_escapes_special_characters_in_clip_names() {
+    let mut tl = fixture();
+    if let slop_core::TrackItem::Clip(c) = &mut tl.tracks[0].items[0] {
+        c.metadata.selection_reason = Some("Q&A: \"strong\" <opening>".into());
+    }
+    let dir = tempdir();
+    let out = dir.join("escape.xml");
+    write_fcp7_xml(&tl, &out).unwrap();
+    let s = std::fs::read_to_string(&out).unwrap();
+    assert!(s.contains("Q&amp;A"));
+    assert!(s.contains("&quot;strong&quot;"));
+    assert!(s.contains("&lt;opening&gt;"));
+    // No raw < > & " in clip name area (other than tag delimiters).
+    assert!(!s.contains("<opening>"));
+}
+
+#[test]
+fn kdenlive_xml_escapes_special_characters_in_uri() {
+    let mut tl = fixture();
+    tl.assets[0].uri = "file:///path/with & ampersand.mp4".into();
+    let dir = tempdir();
+    let out = dir.join("escape.kdenlive");
+    write_kdenlive_xml(&tl, &out).unwrap();
+    let s = std::fs::read_to_string(&out).unwrap();
+    assert!(s.contains("&amp; ampersand"));
+}
+
 fn tempdir() -> std::path::PathBuf {
-    let p = std::env::temp_dir().join(format!("slop-otio-test-{}", chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)));
+    let p = std::env::temp_dir().join(format!(
+        "slop-otio-test-{}",
+        chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)
+    ));
     std::fs::create_dir_all(&p).unwrap();
     p
 }

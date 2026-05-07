@@ -115,9 +115,7 @@ pub fn compile_timeline(tl: &Timeline, opts: &RenderOptions) -> CompiledRender {
                         slop_core::EffectKind::FadeIn => {
                             let dur = eff.duration_sec.unwrap_or(0.5);
                             let next = format!("{current}_fi");
-                            graph.push_str(&format!(
-                                "[{current}]fade=t=in:st=0:d={dur}[{next}];"
-                            ));
+                            graph.push_str(&format!("[{current}]fade=t=in:st=0:d={dur}[{next}];"));
                             current = next;
                         }
                         slop_core::EffectKind::FadeOut => {
@@ -154,9 +152,7 @@ pub fn compile_timeline(tl: &Timeline, opts: &RenderOptions) -> CompiledRender {
                         slop_core::EffectKind::FadeIn => {
                             let dur = eff.duration_sec.unwrap_or(0.5);
                             let next = format!("{current}_afi");
-                            graph.push_str(&format!(
-                                "[{current}]afade=t=in:st=0:d={dur}[{next}];"
-                            ));
+                            graph.push_str(&format!("[{current}]afade=t=in:st=0:d={dur}[{next}];"));
                             current = next;
                         }
                         slop_core::EffectKind::FadeOut => {
@@ -212,9 +208,7 @@ pub fn compile_timeline(tl: &Timeline, opts: &RenderOptions) -> CompiledRender {
         let mut current = video_track_labels[0].clone();
         for (i, next) in video_track_labels.iter().enumerate().skip(1) {
             let out = format!("vmix{i}");
-            graph.push_str(&format!(
-                "[{current}][{next}]overlay=shortest=0[{out}];"
-            ));
+            graph.push_str(&format!("[{current}][{next}]overlay=shortest=0[{out}];"));
             current = out;
         }
         // Final relabel.
@@ -232,9 +226,7 @@ pub fn compile_timeline(tl: &Timeline, opts: &RenderOptions) -> CompiledRender {
             .map(|l| format!("[{l}]"))
             .collect();
         let n = audio_track_labels.len();
-        graph.push_str(&format!(
-            "{inputs}amix=inputs={n}:duration=longest[aout];"
-        ));
+        graph.push_str(&format!("{inputs}amix=inputs={n}:duration=longest[aout];"));
         Some("[aout]".to_string())
     };
 
@@ -402,5 +394,111 @@ mod tests {
         assert_eq!(srt_time(0.0), "00:00:00,000");
         assert_eq!(srt_time(65.250), "00:01:05,250");
         assert_eq!(srt_time(3661.001), "01:01:01,001");
+    }
+
+    #[test]
+    fn concat_count_matches_clip_count() {
+        let mut tl = fixture_tl();
+        // Add a second clip on the same video track.
+        if let Some(track) = tl
+            .tracks
+            .iter_mut()
+            .find(|t| matches!(t.kind, TrackKind::Video))
+        {
+            track.items.push(TrackItem::Clip(ClipItem {
+                item_id: "c1b".into(),
+                asset_id: "a1".into(),
+                src_in: 12.0,
+                src_out: 18.0,
+                timeline_in: 5.0,
+                timeline_out: 11.0,
+                speed: 1.0,
+                effects: vec![],
+                markers: vec![],
+                metadata: Default::default(),
+            }));
+        }
+        let r = compile_timeline(&tl, &RenderOptions::default());
+        assert!(r.filtergraph.contains("concat=n=2"));
+    }
+
+    #[test]
+    fn captions_emit_sidecar_srt_when_burn_disabled() {
+        let mut tl = fixture_tl();
+        tl.captions.push(slop_core::Caption {
+            timeline_in: 0.0,
+            timeline_out: 2.0,
+            text: "hello".into(),
+            segment_id: None,
+        });
+        let opts = RenderOptions {
+            burn_captions: false,
+            ..RenderOptions::default()
+        };
+        let r = compile_timeline(&tl, &opts);
+        assert!(r.sidecar_srt.is_some());
+        let srt = r.sidecar_srt.unwrap();
+        assert!(srt.contains("00:00:00,000 --> 00:00:02,000"));
+        assert!(srt.contains("hello"));
+    }
+
+    #[test]
+    fn multiple_video_tracks_emit_overlay() {
+        let mut tl = fixture_tl();
+        // Add a second video track with a clip.
+        tl.tracks.push(Track {
+            track_id: "v2".into(),
+            kind: TrackKind::Video,
+            items: vec![TrackItem::Clip(ClipItem {
+                item_id: "c_overlay".into(),
+                asset_id: "a1".into(),
+                src_in: 1.0,
+                src_out: 4.0,
+                timeline_in: 0.0,
+                timeline_out: 3.0,
+                speed: 1.0,
+                effects: vec![],
+                markers: vec![],
+                metadata: Default::default(),
+            })],
+        });
+        let r = compile_timeline(&tl, &RenderOptions::default());
+        assert!(r.filtergraph.contains("overlay"));
+    }
+
+    #[test]
+    fn no_video_tracks_synthesize_black_source() {
+        let mut tl = Timeline::empty();
+        tl.assets.push(Asset {
+            asset_id: "a1".into(),
+            uri: "file:///x.mp4".into(),
+            duration_sec: 10.0,
+            has_video: false,
+            has_audio: true,
+            fps: None,
+            resolution: None,
+            transcript_ref: None,
+            shot_list_ref: None,
+        });
+        // Audio-only track.
+        tl.tracks.push(Track {
+            track_id: "a1t".into(),
+            kind: TrackKind::Audio,
+            items: vec![TrackItem::Clip(ClipItem {
+                item_id: "ca".into(),
+                asset_id: "a1".into(),
+                src_in: 0.0,
+                src_out: 5.0,
+                timeline_in: 0.0,
+                timeline_out: 5.0,
+                speed: 1.0,
+                effects: vec![],
+                markers: vec![],
+                metadata: Default::default(),
+            })],
+        });
+        let r = compile_timeline(&tl, &RenderOptions::default());
+        assert!(r.filtergraph.contains("color=c=black"));
+        assert_eq!(r.video_out, "[vout]");
     }
 }

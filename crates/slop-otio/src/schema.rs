@@ -117,6 +117,7 @@ pub struct Gap {
 /// Track item: clip or gap.
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
 pub enum TrackChild {
     /// A clip.
     Clip(Clip),

@@ -49,11 +49,7 @@ pub trait AsrBackend: Send + Sync {
     fn name(&self) -> &'static str;
 
     /// Run a single transcription job.
-    async fn transcribe(
-        &self,
-        job: AsrJob,
-        opts: &AsrOptions,
-    ) -> Result<Transcript, AsrError>;
+    async fn transcribe(&self, job: AsrJob, opts: &AsrOptions) -> Result<Transcript, AsrError>;
 }
 
 /// Errors any backend can produce.

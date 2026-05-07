@@ -35,11 +35,36 @@
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
+      "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
     ],
     "category": "Video",
     "shortDescription": "Local-first prompt-driven rough-cut video editor",
-    "longDescription": "Slop AI is an open-source desktop app that turns raw footage and a one-line prompt into a rough-cut timeline you can refine and export to OTIO, Premiere, Resolve, or Kdenlive."
+    "longDescription": "Slop AI is an open-source desktop app that turns raw footage and a one-line prompt into a rough-cut timeline you can refine and export to OTIO, Premiere, Resolve, or Kdenlive.",
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "11.0",
+      "exceptionDomain": "",
+      "signingIdentity": "-",
+      "providerShortName": null,
+      "entitlements": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "wix": {
+        "language": ["en-US"]
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "ffmpeg"]
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
   }
 }

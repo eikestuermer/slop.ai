@@ -35,11 +35,7 @@ impl AsrBackend for PlaceholderBackend {
         "placeholder"
     }
 
-    async fn transcribe(
-        &self,
-        job: AsrJob,
-        opts: &AsrOptions,
-    ) -> Result<Transcript, AsrError> {
+    async fn transcribe(&self, job: AsrJob, opts: &AsrOptions) -> Result<Transcript, AsrError> {
         let peaks = if opts.silence_chunk {
             // Best-effort: if the user has no ffmpeg installed, fall through
             // to time-only chunking instead of failing.
@@ -54,7 +50,7 @@ impl AsrBackend for PlaceholderBackend {
         let segments = chunks
             .into_iter()
             .map(|c| Segment {
-                segment_id: format!("seg_{}", Uuid::new_v4().simple().to_string()[..12].to_string()),
+                segment_id: format!("seg_{}", &Uuid::new_v4().simple().to_string()[..12]),
                 start_sec: c.start_sec,
                 end_sec: c.end_sec,
                 speaker: None,

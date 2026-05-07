@@ -16,6 +16,7 @@
 
 pub mod error;
 pub mod ids;
+pub mod migrations;
 pub mod ops;
 pub mod plan;
 pub mod reducer;

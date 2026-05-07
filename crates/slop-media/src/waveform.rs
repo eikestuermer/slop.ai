@@ -48,10 +48,7 @@ pub async fn generate_waveform_peaks(
     opts: &WaveformOptions,
 ) -> Result<WaveformPeaks> {
     let input = input.as_ref();
-    let tmp = std::env::temp_dir().join(format!(
-        "slop-waveform-{}.wav",
-        slop_core::ids::asset()
-    ));
+    let tmp = std::env::temp_dir().join(format!("slop-waveform-{}.wav", slop_core::ids::asset()));
 
     let status = Command::new("ffmpeg")
         .args(["-y", "-i"])
