@@ -1,0 +1,75 @@
+name: Bug report
+description: Something is wrong in slop.ai. Please include exact reproduction steps.
+title: "[bug] <short description>"
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: please search existing issues, and check the
+        [`docs/stubs.md`](https://github.com/slop-ai/slop.ai/blob/main/docs/stubs.md)
+        punch list — known wired-but-not-implemented behavior is tracked
+        there as `S-*` stubs, not as bugs.
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      description: |
+        Output of `git rev-parse --short HEAD`, or the release tag, or the
+        version of the published wheel/binary.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: e.g. macOS 14.5 arm64, Ubuntu 22.04 x86_64, Windows 11 x86_64.
+    validations:
+      required: true
+  - type: textarea
+    id: ffmpeg
+    attributes:
+      label: FFmpeg version
+      description: |
+        Output of `ffmpeg -version` (first 3 lines is fine). This is by far
+        the most common source of platform-specific bugs.
+      render: shell
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: |
+        Exact commands. Include input fixtures if at all possible, or a
+        link to a small one. "It happens sometimes" is not actionable.
+      placeholder: |
+        1. Run `cargo run -p slop-cli -- ingest examples/sample-projects/foo`.
+        2. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior + logs
+      description: |
+        Paste the relevant logs (preferably with `RUST_LOG=debug` and / or
+        `RUST_BACKTRACE=1`). If it's a UI issue, please attach a screenshot.
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "S0 — data loss / corrupts ops.jsonl / loses user work"
+        - "S1 — feature totally unusable"
+        - "S2 — feature works but with a meaningful regression"
+        - "S3 — cosmetic / docs / quality-of-life"
+    validations:
+      required: true

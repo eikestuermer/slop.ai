@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issues
+    url: https://github.com/slop-ai/slop.ai/security/advisories/new
+    about: Security issues are handled privately. Do not open public issues. See SECURITY.md for the policy.
+  - name: GitHub Discussions
+    url: https://github.com/slop-ai/slop.ai/discussions
+    about: For design questions, integration help, and general discussion. Enabled by maintainers; see DISCUSSIONS.md if the link 404s.

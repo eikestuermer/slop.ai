@@ -1,0 +1,27 @@
+name: Question
+description: Ask a question. For design discussions, prefer GitHub Discussions if enabled.
+title: "[q] <short question>"
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For open-ended discussion ("how should X work?", "would Y be a good
+        fit?"), GitHub Discussions on this repo is the better venue once
+        enabled by a maintainer. See
+        [`DISCUSSIONS.md`](https://github.com/slop-ai/slop.ai/blob/main/DISCUSSIONS.md)
+        for the current status. Bug reports and stub claims have their own
+        templates — please use those instead when applicable.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: |
+        What are you trying to do? What have you tried? Linking the relevant
+        code or docs you've already read makes the answer faster.

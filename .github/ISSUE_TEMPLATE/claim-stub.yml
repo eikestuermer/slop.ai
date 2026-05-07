@@ -1,0 +1,71 @@
+name: Claim a stub
+description: Claim a wired-but-not-implemented stub from docs/stubs.md so we can avoid duplicate work.
+title: "[claim] S-XXX-NNN — <short description>"
+labels: ["claim", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for picking up a stub. Before opening a PR, please make sure
+        the corresponding `S-*` row in [`docs/stubs.md`](https://github.com/slop-ai/slop.ai/blob/main/docs/stubs.md)
+        is unassigned. A maintainer will assign this issue to you within a
+        few days; please don't start a large PR before assignment so we
+        don't waste your time.
+  - type: input
+    id: stub-id
+    attributes:
+      label: Stub ID
+      description: The `S-XXX-NNN` identifier from docs/stubs.md.
+      placeholder: e.g. S-RENDER-001
+    validations:
+      required: true
+  - type: input
+    id: workstream
+    attributes:
+      label: Workstream
+      description: Engine, AI, Platform, or Verification.
+      placeholder: e.g. Engine
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: Approach
+      description: |
+        A few sentences on the approach you intend to take. References to
+        upstream libraries, papers, or RFCs welcome. The goal is alignment
+        before code, not a full design doc.
+    validations:
+      required: true
+  - type: textarea
+    id: ci-gate
+    attributes:
+      label: CI gate
+      description: |
+        Which CI job named in `docs/stubs.md` will prove this green? If the
+        job doesn't exist yet, say so — adding it is part of the work.
+    validations:
+      required: true
+  - type: dropdown
+    id: experience
+    attributes:
+      label: Experience with this area
+      description: Helps reviewers calibrate guidance, not gate-keep.
+      options:
+        - First contribution to slop.ai
+        - Made a few small PRs here
+        - Worked on this crate before
+        - Maintainer-level familiarity
+    validations:
+      required: true
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I've read [AGENTS.md](https://github.com/slop-ai/slop.ai/blob/main/AGENTS.md) and the relevant skill in `.agents/skills/`.
+          required: true
+        - label: I've read the row for this stub in [docs/stubs.md](https://github.com/slop-ai/slop.ai/blob/main/docs/stubs.md).
+          required: true
+        - label: I'll move the row from `docs/stubs.md` to "Closed (was a stub, now real)" in the PR that closes this issue, and update [`docs/production-readiness.md`](https://github.com/slop-ai/slop.ai/blob/main/docs/production-readiness.md) accordingly.
+          required: true

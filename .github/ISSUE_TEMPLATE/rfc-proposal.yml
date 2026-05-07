@@ -1,0 +1,59 @@
+name: RFC proposal
+description: Propose a meaningful architectural change. Use this for anything that touches the architectural pillars or schema.
+title: "[rfc] <short title>"
+labels: ["rfc", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        RFCs go through the process documented in
+        [`docs/governance.md`](https://github.com/slop-ai/slop.ai/blob/main/docs/governance.md).
+        This issue is the lightweight pre-RFC step — describe the problem
+        and the rough shape of the solution. If maintainers think it's
+        worth a full RFC, they'll ask you to copy
+        [`docs/rfcs/0000-template.md`](https://github.com/slop-ai/slop.ai/blob/main/docs/rfcs/0000-template.md)
+        into a numbered file and open a PR.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What user-visible problem does this solve, or what new capability does it enable?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal sketch
+      description: A few paragraphs on the proposed change. Schemas, data flows, IPC shapes welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: pillar
+    attributes:
+      label: Which architectural pillar(s) does this touch?
+      multiple: true
+      options:
+        - "1. Two-layer state (app-state JSON + ops.jsonl)"
+        - "2. Candidate-set planning (LLM only selects from precomputed candidates)"
+        - "3. Validate then apply (schema + repair before timeline)"
+        - "4. Deterministic render (filtergraph from validated app-state)"
+        - "5. Rough-cut promise only (V1 non-goals)"
+        - "None — this is purely additive / orthogonal"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: At least one. "Doing nothing" is a valid alternative.
+    validations:
+      required: true
+  - type: textarea
+    id: backwards-compat
+    attributes:
+      label: Backwards compatibility
+      description: |
+        Schema migrations? Op-log replay implications? Public API or IPC
+        breakage? "None" is fine, but please confirm explicitly.
+    validations:
+      required: true
