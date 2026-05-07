@@ -344,8 +344,8 @@ jobs:
       - name: Build + install + smoke
         working-directory: bindings/python
         run: |
-          maturin build --release
-          pip install --find-links target/wheels/ slop-ai
+          maturin build --release --out dist
+          pip install --no-index --find-links dist/ slop-ai
           python -c "import slop_py; t = slop_py.PyTimeline(); print(t.to_json())"
 
   integration-bindings-node:
@@ -368,10 +368,13 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Install napi-rs cli
+        run: pnpm add -D -w @napi-rs/cli@^2.18.4 --ignore-workspace-root-check || npm install -g @napi-rs/cli@^2.18.4
       - name: Build + smoke
         working-directory: bindings/node
         run: |
-          pnpm build
+          npm install
+          npm run build
           node -e "const m = require('./'); const t = new m.JsTimeline(); console.log(t.toJson());"
 
   integration-a11y:

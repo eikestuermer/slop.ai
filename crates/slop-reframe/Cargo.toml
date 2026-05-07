@@ -18,6 +18,6 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 anyhow = { workspace = true }
-ort = { version = "2.0.0-rc.10", optional = true, default-features = false, features = ["download-binaries", "ndarray"] }
+ort = { version = "=2.0.0-rc.10", optional = true, default-features = false, features = ["download-binaries", "ndarray"] }
 
 [dev-dependencies]
